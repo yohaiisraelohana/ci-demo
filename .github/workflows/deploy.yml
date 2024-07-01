@@ -1,0 +1,31 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: npm install
+      - run: npm test
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy to Netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: |
+          npm install -g netlify-cli
+          netlify deploy --prod --dir=build --site=e25b2b5f-a8d6-47bc-a2e9-84cb25034c89
